@@ -23,8 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-eiqw*ost)!331!l^9yvh=5230#0vi)@4vjtv4&4vp5%z6^h4a0')
 
 # AI API Keys
-# WARNING: We are hardcoding this for local development. We will move this to env variables before public deployment.
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'AIzaSyDS_khMy2bj9UawgIJPWNTa_NON07aJ2fU')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 
 import os
 import dj_database_url

@@ -134,8 +134,7 @@ def ai_generate_recipe(request):
         prompt = request.POST.get('prompt', '')
         
         try:
-            genai.configure(api_key=settings.GEMINI_API_KEY)
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            import requests
             
             system_prompt = f"""
             You are a professional chef. Given the following user input/ingredients: "{prompt}",
@@ -148,10 +147,19 @@ def ai_generate_recipe(request):
             - category (string: e.g. Breakfast, Lunch, Dinner, Dessert)
             """
             
-            response = model.generate_content(system_prompt)
-            
-            # Clean up the response to ensure it's pure JSON
-            text = response.text.strip()
+            api_response = requests.post(
+                url="https://openrouter.ai/api/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {settings.GEMINI_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "google/gemini-1.5-flash",
+                    "messages": [{"role": "user", "content": system_prompt}]
+                }
+            )
+            api_response.raise_for_status()
+            text = api_response.json()['choices'][0]['message']['content'].strip()
             if text.startswith('```json'):
                 text = text[7:]
             if text.endswith('```'):
@@ -182,8 +190,7 @@ def smart_suggest_products(request, recipe_id):
     try:
         recipe = Receipe.objects.get(id=recipe_id)
         
-        genai.configure(api_key=settings.GEMINI_API_KEY)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        import requests
         
         prompt = f"""
         Analyze this recipe:
@@ -200,8 +207,19 @@ def smart_suggest_products(request, recipe_id):
         - type (string: either "Spice" or "Tool")
         """
         
-        response = model.generate_content(prompt)
-        text = response.text.strip()
+        api_response = requests.post(
+            url="https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {settings.GEMINI_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "google/gemini-1.5-flash",
+                "messages": [{"role": "user", "content": prompt}]
+            }
+        )
+        api_response.raise_for_status()
+        text = api_response.json()['choices'][0]['message']['content'].strip()
         if text.startswith('```json'):
             text = text[7:]
         if text.endswith('```'):
