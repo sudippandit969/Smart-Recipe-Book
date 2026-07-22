@@ -134,7 +134,8 @@ def ai_generate_recipe(request):
         prompt = request.POST.get('prompt', '')
         
         try:
-            import requests
+            genai.configure(api_key=settings.GEMINI_API_KEY)
+            model = genai.GenerativeModel('gemini-flash-latest')
             
             system_prompt = f"""
             You are a professional chef. Given the following user input/ingredients: "{prompt}",
@@ -147,19 +148,10 @@ def ai_generate_recipe(request):
             - category (string: e.g. Breakfast, Lunch, Dinner, Dessert)
             """
             
-            api_response = requests.post(
-                url="https://openrouter.ai/api/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {settings.GEMINI_API_KEY}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": "google/gemini-1.5-flash",
-                    "messages": [{"role": "user", "content": system_prompt}]
-                }
-            )
-            api_response.raise_for_status()
-            text = api_response.json()['choices'][0]['message']['content'].strip()
+            response = model.generate_content(system_prompt)
+            
+            # Clean up the response to ensure it's pure JSON
+            text = response.text.strip()
             if text.startswith('```json'):
                 text = text[7:]
             if text.endswith('```'):
@@ -190,7 +182,8 @@ def smart_suggest_products(request, recipe_id):
     try:
         recipe = Receipe.objects.get(id=recipe_id)
         
-        import requests
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        model = genai.GenerativeModel('gemini-flash-latest')
         
         prompt = f"""
         Analyze this recipe:
@@ -207,19 +200,8 @@ def smart_suggest_products(request, recipe_id):
         - type (string: either "Spice" or "Tool")
         """
         
-        api_response = requests.post(
-            url="https://openrouter.ai/api/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {settings.GEMINI_API_KEY}",
-                "Content-Type": "application/json"
-            },
-            json={
-                "model": "google/gemini-1.5-flash",
-                "messages": [{"role": "user", "content": prompt}]
-            }
-        )
-        api_response.raise_for_status()
-        text = api_response.json()['choices'][0]['message']['content'].strip()
+        response = model.generate_content(prompt)
+        text = response.text.strip()
         if text.startswith('```json'):
             text = text[7:]
         if text.endswith('```'):
@@ -306,6 +288,24 @@ def feedback_page(request):
         comment = request.POST.get('comment', '')
         recipe_id = request.POST.get('recipe_id')
         
+        recipe = None
+        if recipe_id:
+            try:
+                recipe = Receipe.objects.get(id=recipe_id)
+            except Receipe.DoesNotExist:
+                pass
+                
+        Feedback.objects.create(
+            user=request.user,
+            recipe=recipe,
+            rating=int(rating),
+            comment=comment
+        )
+        messages.success(request, "Thank you for your feedback!")
+        return redirect('/')
+        
+    recipes = Receipe.objects.filter(is_public=True)
+    return render(request, 'feedback.html', {'recipes': recipes})
         recipe = None
         if recipe_id:
             try:
