@@ -1,56 +1,66 @@
-{%extends "base.html"%}
-{%block start%}
+{% extends "base.html" %}
 
-{% comment %} <div class="container ">
-  <nav class="navbar navbar-expand-lg bg-body-tertiary outline card shadow-lg mx-auto px-3 py-2">
-    <div class="container-fluid">  
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0 mt-2 mt-lg-0">
-          <li class="nav-item me-2">
-            <a class="nav-link active" style="background-color:#f4845f; color:white; border-radius: 8px; padding: 6px 12px;" aria-current="page" href="#">Home</a>
-          </li>
-          <li class="nav-item me-2">
-            <a class="nav-link" style="background-color:#f79d65; color:white; border-radius: 8px; padding: 6px 12px;" href="#">Link</a>
-          </li>
-          <li class="nav-item me-2"><a class="nav-link" style="background-color:#f79d65; color:white; border-radius: 8px; padding: 6px 12px;" href="#">Debu</a>
-          </li>
-          <li class="nav-item dropdown me-2">
-            <a class="nav-link dropdown-toggle" style="background-color:#f7b267; color:white; border-radius: 8px; padding: 6px 12px;" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              About
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#">Customer Service</a></li>
-              <li><a class="dropdown-item" href="#">Social Media</a></li>
-            </ul>
-          </li>
-        </ul>
-        <button class="btn" style="background-color:#006d77; color:white;" type="submit">Profile</button>
-      </div>
-    </div>
-  </nav>
-   {% endcomment %}
-
-    <form method="post" enctype="multipart/form-data" class="col-6 mx-auto card p-3 shadow-lg mt-2 ">
-        {%csrf_token%}
-        <h2>
-            Update receipe
-        </h2>
-        <hr></hr>
-        <div class="mb-3">
-          <label for="exampleInputEmail1" class="form-label">Receipe Name</label>
-          <input name="receipe_name" value="{{receipe.receipe_name}}" required type="text" class="form-control">
+{% block start %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+  <div class="glass-card p-5" style="width: 100%; max-width: 800px;">
+    <h2 class="fw-bold mb-4 text-center" style="color: #2c3e50;"><i class="bi bi-pencil-square text-primary"></i> Edit Recipe</h2>
+    
+    <form method="post" enctype="multipart/form-data" action="/update_receipe/{{ receipe.id }}/">
+      {% csrf_token %}
+      <div class="row g-4">
+        <div class="col-md-8">
+          <label class="form-label fw-bold">Recipe Name</label>
+          <input name="receipe_name" value="{{ receipe.receipe_name }}" required type="text" class="form-control" />
         </div>
-        <div class="mb-3">
-          <label for="exampleInputPassword1"  class="form-label">Receipe Descripsion</label>
-          <textarea name="receipe_description" value=""  required class="form-control">{{receipe.receipe_description}}</textarea>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Prep Time (mins)</label>
+          <input name="prep_time" value="{{ receipe.prep_time }}" type="number" class="form-control" min="0" />
         </div>
-        <div class="mb-3">
-            <label for="exampleInputPassword1"  class="form-label">Receipe Image</label>
-            <input name="receipe_image" type="file" class="form-control">
+        
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Category</label>
+          <select name="category" class="form-select">
+            <option value="" {% if not receipe.category %}selected{% endif %}>Select Category...</option>
+            <option value="Breakfast" {% if receipe.category == 'Breakfast' %}selected{% endif %}>Breakfast</option>
+            <option value="Lunch" {% if receipe.category == 'Lunch' %}selected{% endif %}>Lunch</option>
+            <option value="Dinner" {% if receipe.category == 'Dinner' %}selected{% endif %}>Dinner</option>
+            <option value="Dessert" {% if receipe.category == 'Dessert' %}selected{% endif %}>Dessert</option>
+            <option value="Snack" {% if receipe.category == 'Snack' %}selected{% endif %}>Snack</option>
+          </select>
+        </div>
+        <div class="col-md-6 d-flex align-items-center mt-4">
+          <div class="form-check form-switch mt-2 fs-5">
+            <input class="form-check-input" type="checkbox" name="is_public" id="isPublicSwitch" {% if receipe.is_public %}checked{% endif %}>
+            <label class="form-check-label ms-2" for="isPublicSwitch">Make Public</label>
           </div>
+        </div>
 
-        <button type="submit" class="btn btn-success">Update Receipe</button>
-      </form>
+        <div class="col-12">
+          <label class="form-label fw-bold">Ingredients (one per line)</label>
+          <textarea name="ingredients" class="form-control" rows="4">{{ receipe.ingredients }}</textarea>
+        </div>
+        
+        <div class="col-12">
+          <label class="form-label fw-bold">Instructions / Description</label>
+          <textarea name="receipe_description" required class="form-control" rows="6">{{ receipe.receipe_description }}</textarea>
+        </div>
+        
+        <div class="col-12">
+          <label class="form-label fw-bold">Current Recipe Image</label>
+          {% if receipe.receipe_image %}
+            <div class="mb-3">
+              <img src="/media/{{ receipe.receipe_image }}" class="img-thumbnail" style="height: 150px; object-fit: cover; border-radius: 12px;">
+            </div>
+          {% endif %}
+          <input name="receipe_image" type="file" class="form-control" accept="image/*" />
+        </div>
+        
+        <div class="col-12 mt-4 text-center">
+          <a href="/receipes/" class="btn btn-light rounded-pill px-5 me-3 shadow-sm">Cancel</a>
+          <button type="submit" class="btn btn-custom rounded-pill px-5 shadow-sm">Update Recipe</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
-
-{%endblock%}
+{% endblock %}

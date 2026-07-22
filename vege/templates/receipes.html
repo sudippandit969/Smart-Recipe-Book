@@ -1,166 +1,602 @@
 {% extends "base.html" %}
-{% block start %}
+
+{% block title %}My Smart Recipes | Smart Recipe Book{% endblock %}
+{% block meta_description %}Manage your personal collection of AI-generated culinary recipes in the Smart Recipe Book.{% endblock %}
+
+{% block head_extra %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": [
+    {% for receipe in receipes %}
+    {
+      "@type": "ListItem",
+      "position": {{ forloop.counter }},
+      "item": {
+        "@type": "Recipe",
+        "name": "{{ receipe.receipe_name|escapejs }}",
+        "description": "{{ receipe.receipe_description|escapejs }}",
+        "prepTime": "PT{{ receipe.prep_time }}M",
+        "recipeCategory": "{{ receipe.category|escapejs }}"
+      }
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
 <style>
-  .button-recipe {
-    all: unset;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1.5em 2em;
-    border: 2px solid mediumspringgreen;
-    border-radius: 8px;
-    color: black;
-    font-size: 1.2em;
-    font-weight: bold;
-    cursor: pointer;
+  .premium-card {
+    border: none;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     overflow: hidden;
-    transition: border 300ms, color 300ms, background 300ms;
-    user-select: none;
-    margin: 0 10px;
     position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
-
-  .button-recipe:hover {
-    color: #fff;
-    background-color: mediumspringgreen;
+  .premium-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 32px rgba(0,0,0,0.12);
   }
-
-  .button-recipe:active {
-    border-color: teal;
-    background-color: teal;
+  .premium-img-container {
+    position: relative;
+    height: 220px;
+    width: 100%;
+    overflow: hidden;
+  }
+  .premium-img-container::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+    pointer-events: none;
+  }
+  .premium-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  .premium-card:hover .premium-img {
+    transform: scale(1.05);
+  }
+  .premium-card-body {
+    padding: 24px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .premium-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+  .premium-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    margin-bottom: 16px;
+  }
+  .premium-meta i {
+    color: var(--primary-color);
+    margin-right: 5px;
+  }
+  .premium-desc {
+    font-size: 0.95rem;
+    color: #7f8c8d;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 0;
+  }
+  .premium-card-footer {
+    padding: 0 24px 24px 24px;
+    background: transparent;
+  }
+  .badge-category {
+    background-color: var(--primary-color);
     color: white;
   }
-
-  .button-recipe::after,
-  .button-recipe::before {
-    content: "";
-    position: absolute;
-    width: 9em;
-    aspect-ratio: 1;
-    background: mediumspringgreen;
-    opacity: 0.4;
+  .floating-add-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    transition: transform 500ms, background 300ms;
-    z-index: 0;
+    background: var(--primary-color);
+    color: white;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s;
+    border: none;
   }
-
-  .button-recipe::before {
-    left: 0;
-    transform: translateX(-8em);
-  }
-
-  .button-recipe::after {
-    right: 0;
-    transform: translateX(8em);
-  }
-
-  .button-recipe:hover::before {
-    transform: translateX(-1em);
-  }
-
-  .button-recipe:hover::after {
-    transform: translateX(1em);
-  }
-
-  .button-recipe span {
-    position: relative;
-    z-index: 1;
+  .floating-add-btn:hover {
+    transform: scale(1.1) rotate(90deg);
+    background: var(--primary-hover);
   }
 </style>
+{% endblock %}
 
-<div class="container mt-5">
-  <div class="text-center">
-    <button class="button-recipe mt-3" onclick="toggleForm('form1')">
-      <span>Add Recipe</span>
-    </button>
-    <button class="button-recipe mt-3" onclick="toggleForm('form2')">
-      <span>Search Recipe</span>
+{% block start %}
+<div class="container">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold" style="color: #2c3e50;">My Personal Recipes</h2>
+    <button class="btn btn-outline-primary rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#aiModal">
+      <i class="bi bi-magic"></i> Generate with AI
     </button>
   </div>
 
-  <div class="mt-4" id="formContainer">
-    <div id="form1" class="mt-4" style="display: none;">
-      <form method="post" enctype="multipart/form-data" class="col-6 mx-auto card p-3 shadow-lg mt-2">
-        {% csrf_token %}
-        <h2>Add Recipe</h2>
-        <hr />
-        <div class="mb-3">
-          <label class="form-label">Recipe Name</label>
-          <input name="receipe_name" required type="text" class="form-control" />
+  <!-- Search & Filter Bar -->
+  <div class="glass-card p-3 mb-5">
+    <form method="get" class="row g-3 align-items-center">
+      <div class="col-md-6">
+        <div class="input-group">
+          <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+          <input name="search" type="text" class="form-control border-start-0 ps-0" placeholder="Search recipes..." value="{{ request.GET.search }}">
         </div>
-        <div class="mb-3">
-          <label class="form-label">Recipe Description</label>
-          <textarea name="receipe_description" required class="form-control"></textarea>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Recipe Image</label>
-          <input name="receipe_image" type="file" class="form-control" />
-        </div>
-        <button type="submit" class="btn btn-success">Add</button>
-      </form>
-    </div>
-
-    <div id="form2" class="card col-md-6 mx-auto outline" style="display: none;">
-      <form method="get" action="/receipes/">
-        <div class="mb-3">
-          <label class="form-label">Search Recipe</label>
-          <input name="search" type="text" class="form-control" />
-          <button type="submit" class="btn btn-primary mt-2">Search</button>
-        </div>
-      </form>
-    </div>
+      </div>
+      <div class="col-md-4">
+        <select name="category" class="form-select">
+          <option value="">All Categories</option>
+          <option value="Breakfast" {% if request.GET.category == 'Breakfast' %}selected{% endif %}>Breakfast</option>
+          <option value="Lunch" {% if request.GET.category == 'Lunch' %}selected{% endif %}>Lunch</option>
+          <option value="Dinner" {% if request.GET.category == 'Dinner' %}selected{% endif %}>Dinner</option>
+          <option value="Dessert" {% if request.GET.category == 'Dessert' %}selected{% endif %}>Dessert</option>
+          <option value="Snack" {% if request.GET.category == 'Snack' %}selected{% endif %}>Snack</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-custom w-100">Filter</button>
+      </div>
+    </form>
   </div>
 
-  {% if user.is_authenticated %}
-  <h2 class="text mt-5"style="color:#003c3c;">Welcome, {{ user.username }}!</h2>
-  <table class="table table-striped bg-light mt-4">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Recipe Name</th>
-        <th>Recipe Description</th>
-        <th>Image</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for receipe in receipes %}
-      <tr>
-        <td>{{ forloop.counter }}</td>
-        <td>{{ receipe.receipe_name }}</td>
-        <td>{{ receipe.receipe_description }}</td>
-        <td>
-          <img src="/media/{{ receipe.receipe_image }}" style="height: 100px;" />
-        </td>
-        <td>
-          {% if receipe.user == request.user %}
-          <a href="/delete_receipe/{{ receipe.id }}/" class="btn btn-danger btn-sm">Delete</a>
-          <a href="/update_receipe/{{ receipe.id }}/" class="btn btn-success btn-sm">Update</a>
+  <!-- Recipe Grid -->
+  {% if receipes %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for receipe in receipes %}
+    <div class="col">
+      <div class="premium-card">
+        
+        <div class="premium-img-container">
+          {% if receipe.receipe_image %}
+            <img src="/media/{{ receipe.receipe_image }}" class="premium-img" alt="{{ receipe.receipe_name }}">
+          {% else %}
+            <div class="premium-img bg-secondary d-flex align-items-center justify-content-center text-white">
+              <i class="bi bi-image fs-1"></i>
+            </div>
           {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+        </div>
+        
+        <div class="premium-card-body">
+          <h5 class="premium-title" title="{{ receipe.receipe_name }}">{{ receipe.receipe_name }}</h5>
+          
+          <div class="premium-meta">
+            {% if receipe.category %}
+              <span><i class="bi bi-tag-fill"></i>{{ receipe.category }}</span>
+            {% endif %}
+            <span><i class="bi bi-clock-fill"></i>{{ receipe.prep_time }} mins</span>
+            {% if receipe.is_public %}
+              <span><i class="bi bi-globe"></i>Public</span>
+            {% else %}
+              <span><i class="bi bi-lock-fill"></i>Private</span>
+            {% endif %}
+          </div>
+          
+          <p class="premium-desc">{{ receipe.receipe_description }}</p>
+        </div>
+
+        <div class="premium-card-footer d-flex justify-content-between align-items-center">
+          <button class="btn btn-outline-success rounded-pill px-3 py-2 fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#recipeModal{{ receipe.id }}">
+            <i class="bi bi-eye"></i> View
+          </button>
+          <div class="d-flex gap-2">
+            <a href="/update_receipe/{{ receipe.id }}/" class="btn btn-outline-primary rounded-circle shadow-sm" style="width: 40px; height: 40px; padding: 0; line-height: 40px; text-align: center;"><i class="bi bi-pencil-fill"></i></a>
+            <a href="/delete_receipe/{{ receipe.id }}/" class="btn btn-outline-danger rounded-circle shadow-sm" style="width: 40px; height: 40px; padding: 0; line-height: 40px; text-align: center;" onclick="return confirm('Are you sure you want to delete this recipe?');"><i class="bi bi-trash-fill"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recipe Details Modal -->
+    <div class="modal fade" id="recipeModal{{ receipe.id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content" style="border-radius: 16px; border: none; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.2);">
+          <div class="modal-header bg-white border-bottom-0 pt-4 pb-0 px-4 position-absolute w-100" style="z-index: 10;">
+            <button type="button" class="btn-close ms-auto bg-white rounded-circle p-2 shadow-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-0">
+            <div class="row g-0">
+              
+              <!-- Left Column: Visuals & Smart Features -->
+              <div class="col-lg-5 bg-light border-end d-flex flex-column" style="max-height: 85vh; overflow-y: auto;">
+                {% if receipe.receipe_image %}
+                  <img src="/media/{{ receipe.receipe_image }}" class="w-100" style="height: 300px; object-fit: cover;" alt="{{ receipe.receipe_name }}">
+                {% else %}
+                  <div class="w-100 bg-secondary d-flex align-items-center justify-content-center text-white" style="height: 300px;">
+                    <i class="bi bi-image fs-1"></i>
+                  </div>
+                {% endif %}
+                
+                <div class="p-4 flex-grow-1">
+                  <h4 class="fw-bold mb-3" style="color: var(--primary-color);"><i class="bi bi-egg-fried"></i> {{ receipe.receipe_name }}</h4>
+                  
+                  <div class="d-flex align-items-center mb-4 gap-2">
+                    <span class="badge badge-category rounded-pill px-3 py-2 shadow-sm">{{ receipe.category }}</span>
+                    <span class="badge bg-white text-dark border rounded-pill px-3 py-2 shadow-sm"><i class="bi bi-clock text-warning"></i> {{ receipe.prep_time }} mins</span>
+                  </div>
+
+                  <!-- Timer UI -->
+                  <div class="bg-dark text-white rounded-4 p-3 mb-4 d-flex justify-content-between align-items-center shadow-sm border border-secondary">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="bg-secondary bg-opacity-25 p-2 rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                        <i class="bi bi-stopwatch fs-4 text-info"></i>
+                      </div>
+                      <div>
+                        <h6 class="mb-0 text-white-50 small text-uppercase fw-bold tracking-wide" style="font-size: 0.7rem;">Timer</h6>
+                        <h4 class="mb-0 fw-bold font-monospace" id="timerDisplay{{ receipe.id }}" data-time="{{ receipe.prep_time }}">
+                          {% if receipe.prep_time < 10 %}0{{ receipe.prep_time }}{% else %}{{ receipe.prep_time }}{% endif %}:00
+                        </h4>
+                      </div>
+                    </div>
+                    <div class="d-flex gap-1">
+                      <button class="btn btn-success rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style="width:35px; height:35px;" onclick="startTimer({{ receipe.id }})"><i class="bi bi-play-fill"></i></button>
+                      <button class="btn btn-warning rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style="width:35px; height:35px;" onclick="pauseTimer({{ receipe.id }})"><i class="bi bi-pause-fill"></i></button>
+                      <button class="btn btn-danger rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style="width:35px; height:35px;" onclick="resetTimer({{ receipe.id }}, {{ receipe.prep_time }})"><i class="bi bi-arrow-counterclockwise"></i></button>
+                    </div>
+                  </div>
+
+                  <!-- Smart Features Section -->
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold m-0"><i class="bi bi-magic text-warning"></i> Smart Tools</h6>
+                    <button class="btn btn-sm btn-outline-warning rounded-pill fw-bold" style="font-size: 0.8rem;" onclick="loadSmartSuggestions({{ receipe.id }})" id="btnSuggest{{ receipe.id }}">
+                      <i class="bi bi-stars"></i> Get AI Gear
+                    </button>
+                  </div>
+
+                  <!-- AI Suggestions Container -->
+                  <div id="aiSuggestions{{ receipe.id }}" class="row g-2 d-none">
+                    <!-- JS will populate this -->
+                  </div>
+                  <div id="aiLoading{{ receipe.id }}" class="text-center py-4 d-none">
+                    <div class="spinner-border text-warning" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted mt-2 mb-0 fw-bold small">Gemini is analyzing...</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Details -->
+              <div class="col-lg-7 p-4 p-lg-5" style="max-height: 85vh; overflow-y: auto;">
+                
+                {% if receipe.ingredients %}
+                  <h5 class="fw-bold mb-3"><i class="bi bi-basket text-success"></i> Ingredients</h5>
+                  <div class="p-4 bg-white rounded-4 shadow-sm mb-4 border">
+                    <p class="mb-0" style="white-space: pre-line; line-height: 1.6;">{{ receipe.ingredients }}</p>
+                  </div>
+                {% endif %}
+                
+                <h5 class="fw-bold mb-3"><i class="bi bi-list-task text-primary"></i> Instructions</h5>
+                <div class="p-4 bg-white rounded-4 shadow-sm border">
+                  <p class="mb-0" style="white-space: pre-line; font-size: 1.1rem; line-height: 1.8;">{{ receipe.receipe_description }}</p>
+                </div>
+                
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
   {% else %}
-  <script>
-    window.location.href = "/login/";
-  </script>
+  <div class="text-center py-5">
+    <div class="mb-4">
+      <i class="bi bi-journal-x text-muted" style="font-size: 4rem;"></i>
+    </div>
+    <h4 class="text-muted fw-bold">No recipes found</h4>
+    <p class="text-muted">Start by adding your first delicious recipe!</p>
+  </div>
   {% endif %}
 </div>
 
-<script>
-  function toggleForm(formId) {
-    const form1 = document.getElementById('form1');
-    const form2 = document.getElementById('form2');
+<!-- Floating Add Button -->
+<button class="floating-add-btn" data-bs-toggle="modal" data-bs-target="#addRecipeModal" title="Add Recipe">
+  <i class="bi bi-plus-lg"></i>
+</button>
 
-    if (document.getElementById(formId).style.display === 'block') {
-      document.getElementById(formId).style.display = 'none';
-    } else {
-      form1.style.display = 'none';
-      form2.style.display = 'none';
-      document.getElementById(formId).style.display = 'block';
+<!-- Add Recipe Modal -->
+<div class="modal fade" id="addRecipeModal" tabindex="-1" aria-labelledby="addRecipeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 16px; border: none;">
+      <div class="modal-header bg-light border-bottom-0" style="border-radius: 16px 16px 0 0;">
+        <h5 class="modal-title fw-bold" id="addRecipeModalLabel">Add New Recipe</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" enctype="multipart/form-data" action="/receipes/">
+        <div class="modal-body p-4">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label fw-bold">Recipe Name</label>
+              <input name="receipe_name" required type="text" class="form-control" placeholder="e.g., Spicy Chicken Pasta" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Prep Time (mins)</label>
+              <input name="prep_time" type="number" class="form-control" placeholder="30" min="0" />
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Category</label>
+              <select name="category" class="form-select">
+                <option value="">Select Category...</option>
+                <option value="Breakfast">Breakfast</option>
+                <option value="Lunch">Lunch</option>
+                <option value="Dinner">Dinner</option>
+                <option value="Dessert">Dessert</option>
+                <option value="Snack">Snack</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Visibility</label>
+              <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" name="is_public" id="isPublicSwitch" checked>
+                <label class="form-check-label" for="isPublicSwitch">Make Public (Community Feed)</label>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-bold">Ingredients (one per line)</label>
+              <textarea name="ingredients" class="form-control" rows="3" placeholder="2 cups of flour..."></textarea>
+            </div>
+            
+            <div class="col-12">
+              <label class="form-label fw-bold">Instructions / Description</label>
+              <textarea name="receipe_description" required class="form-control" rows="4" placeholder="Mix ingredients..."></textarea>
+            </div>
+            
+            <div class="col-12">
+              <label class="form-label fw-bold">Recipe Image</label>
+              <input name="receipe_image" type="file" class="form-control" accept="image/*" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-top-0">
+          <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-custom">Save Recipe</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- AI Generator Modal (Stub) -->
+<div class="modal fade" id="aiModal" tabindex="-1" aria-labelledby="aiModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 16px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+      <div class="modal-header border-bottom-0">
+        <h5 class="modal-title fw-bold" id="aiModalLabel"><i class="bi bi-stars text-warning"></i> AI Recipe Generator</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4 text-center">
+        <p class="mb-4">Tell me what ingredients you have, and I'll generate a recipe for you!</p>
+        <form id="aiGenForm">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            <div class="input-group mb-3 shadow">
+                <input type="text" class="form-control py-3 border-0" id="aiPrompt" placeholder="e.g. Chicken, rice, and broccoli..." required>
+                <button class="btn btn-warning px-4 fw-bold text-dark border-0" type="submit" id="aiGenBtn">Generate</button>
+            </div>
+        </form>
+        <div id="aiLoading" class="d-none my-3">
+            <div class="spinner-border text-light" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 small">Dreaming up a delicious meal...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Smart Features Scripts -->
+<script>
+  // Timer Logic
+  const timers = {};
+
+  function formatTime(totalSeconds) {
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+  }
+
+  function startTimer(id) {
+    if (timers[id] && timers[id].interval) return; // already running
+
+    const display = document.getElementById(`timerDisplay${id}`);
+    if (!timers[id]) {
+      const initialMinutes = parseInt(display.getAttribute('data-time'));
+      timers[id] = { remaining: initialMinutes * 60, interval: null };
+    }
+
+    if (timers[id].remaining <= 0) return;
+
+    timers[id].interval = setInterval(() => {
+      timers[id].remaining--;
+      display.innerText = formatTime(timers[id].remaining);
+
+      if (timers[id].remaining <= 0) {
+        clearInterval(timers[id].interval);
+        timers[id].interval = null;
+        playAlarm();
+      }
+    }, 1000);
+  }
+
+  function pauseTimer(id) {
+    if (timers[id] && timers[id].interval) {
+      clearInterval(timers[id].interval);
+      timers[id].interval = null;
     }
   }
+
+  function resetTimer(id, originalMinutes) {
+    pauseTimer(id);
+    timers[id] = { remaining: originalMinutes * 60, interval: null };
+    const display = document.getElementById(`timerDisplay${id}`);
+    display.innerText = formatTime(timers[id].remaining);
+  }
+
+  function playAlarm() {
+    // Simple beep using Web Audio API
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.5);
+    
+    gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
+    
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    
+    osc.start();
+    osc.stop(ctx.currentTime + 1);
+  }
+
+  // AI Suggestion Logic
+  function loadSmartSuggestions(recipeId) {
+    const container = document.getElementById(`aiSuggestions${recipeId}`);
+    const loading = document.getElementById(`aiLoading${recipeId}`);
+    const btn = document.getElementById(`btnSuggest${recipeId}`);
+
+    // If already loaded or loading, ignore
+    if (!container.classList.contains('d-none') && container.innerHTML.trim() !== "") return;
+
+    loading.classList.remove('d-none');
+    btn.disabled = true;
+
+    fetch(`/smart_suggest/${recipeId}/`)
+      .then(res => res.json())
+      .then(data => {
+        loading.classList.add('d-none');
+        container.classList.remove('d-none');
+        
+        if (data.error) {
+          container.innerHTML = `<div class="col-12"><div class="alert alert-danger">${data.error}</div></div>`;
+          btn.disabled = false;
+          return;
+        }
+
+        let html = '';
+        data.products.forEach(p => {
+          const icon = p.type === 'Spice' ? 'bi-flower1 text-danger' : 'bi-tools text-primary';
+          const buyLink = p.name.split(' ').join('+'); // Fake affiliate search link
+          html += `
+            <div class="col-md-6">
+              <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);">
+                <div class="card-body">
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="bi ${icon} fs-4 me-2"></i>
+                    <h6 class="card-title fw-bold mb-0 text-truncate" title="${p.name}">${p.name}</h6>
+                  </div>
+                  <p class="small text-muted mb-3" style="line-height: 1.4;">${p.description}</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-success">${p.price}</span>
+                    <a href="https://www.amazon.com/s?k=${buyLink}" target="_blank" class="btn btn-sm btn-dark rounded-pill px-3 shadow-sm" style="font-size: 0.8rem;">Buy Now</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+        btn.innerText = "Recommendations Loaded";
+      })
+      .catch(err => {
+        loading.classList.add('d-none');
+        btn.disabled = false;
+        container.classList.remove('d-none');
+        container.innerHTML = `<div class="col-12"><div class="alert alert-danger">Network Error</div></div>`;
+      });
+  }
+</script>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('aiGenForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const prompt = document.getElementById('aiPrompt').value;
+    const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const btn = document.getElementById('aiGenBtn');
+    const loading = document.getElementById('aiLoading');
+    
+    btn.disabled = true;
+    loading.classList.remove('d-none');
+    
+    fetch('/ai_generate/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrf
+        },
+        body: 'prompt=' + encodeURIComponent(prompt)
+    })
+    .then(response => response.json())
+    .then(data => {
+        btn.disabled = false;
+        loading.classList.add('d-none');
+        if(data.error) {
+            alert('Error generating recipe');
+        } else {
+            alert("Success! " + data.name + " generated. \n(Note: Form auto-fill will be implemented soon!)");
+            // You can auto-fill the Add Recipe Modal here later
+            document.querySelector('#addRecipeModal [name="receipe_name"]').value = data.name;
+            document.querySelector('#addRecipeModal [name="receipe_description"]').value = data.description;
+            document.querySelector('#addRecipeModal [name="ingredients"]').value = data.ingredients;
+            document.querySelector('#addRecipeModal [name="prep_time"]').value = data.prep_time;
+            
+            // Close AI modal and open Add Recipe Modal
+            var aiModal = bootstrap.Modal.getInstance(document.getElementById('aiModal'));
+            aiModal.hide();
+            var addModal = new bootstrap.Modal(document.getElementById('addRecipeModal'));
+            addModal.show();
+        }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        loading.classList.add('d-none');
+        console.error(err);
+    });
+});
 </script>
 {% endblock %}

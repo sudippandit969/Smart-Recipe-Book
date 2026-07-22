@@ -1,12 +1,83 @@
 {% extends "base.html" %}
-{% block title %}SMART RECIPE BOOK - Contact{% endblock %}
+
+{% block title %}Contact | Smart Recipe Book{% endblock %}
+{% block meta_description %}Get in touch with the creator of Smart Recipe Book, Sudip Pandit.{% endblock %}
+
+{% block extra_css %}
+<style>
+  .contact-wrapper {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    padding: 4rem;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .contact-icon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+  }
+  .contact-item {
+    padding: 20px;
+    border-radius: 15px;
+    background: #fdfbfb;
+    border: 1px solid #eee;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+  }
+  .contact-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  }
+</style>
+{% endblock %}
 
 {% block start %}
-<div
-  class="contact-page d-flex justify-content-center align-items-center flex-column text-center text-black;"
-  style="height: 100vh; font-family: 'Papyrus', fantasy, cursive;"
->
-  <h2>Contact Us</h2>
-  <h2>📞 9064071**5</h2>
+<div class="container py-5">
+  <div class="contact-wrapper">
+    <h1 class="fw-bold mb-4" style="color: #2c3e50;">Get in Touch</h1>
+    <p class="lead text-muted mb-5">Have a question, suggestion, or just want to say hi? I'd love to hear from you!</p>
+
+    <div class="row g-4 justify-content-center">
+      
+      <!-- Developer Info -->
+      <div class="col-md-4">
+        <div class="contact-item">
+          <i class="bi bi-person-circle contact-icon"></i>
+          <h5 class="fw-bold">Developer</h5>
+          <p class="text-muted mb-0">Sudip Pandit</p>
+        </div>
+      </div>
+      
+      <!-- Email -->
+      <div class="col-md-4">
+        <div class="contact-item">
+          <i class="bi bi-envelope-at-fill contact-icon"></i>
+          <h5 class="fw-bold">Email</h5>
+          <p class="text-muted mb-0"><a href="mailto:sudippandit969@gmail.com" class="text-decoration-none text-muted">sudippandit969@gmail.com</a></p>
+        </div>
+      </div>
+      
+      <!-- LinkedIn -->
+      <div class="col-md-4">
+        <div class="contact-item">
+          <i class="bi bi-linkedin contact-icon" style="color: #0077b5;"></i>
+          <h5 class="fw-bold">LinkedIn</h5>
+          <p class="text-muted mb-0">
+            <a href="https://www.linkedin.com/in/sudip-pandit-100969261/" target="_blank" class="text-decoration-none text-muted">Connect with me</a>
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="mt-5 pt-4 border-top">
+      <h4 class="fw-bold mb-3">Want to leave a review instead?</h4>
+      <a href="/feedback/" class="btn btn-outline-primary rounded-pill px-4 py-2">Go to Feedback Page <i class="bi bi-arrow-right ms-2"></i></a>
+    </div>
+
+  </div>
 </div>
 {% endblock %}

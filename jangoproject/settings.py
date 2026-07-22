@@ -22,6 +22,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-eiqw*ost)!331!l^9yvh=5230#0vi)@4vjtv4&4vp5%z6^h4a0'
 
+# AI API Keys
+# WARNING: We are hardcoding this for local development. We will move this to env variables before public deployment.
+GEMINI_API_KEY = 'AIzaSyDS_khMy2bj9UawgIJPWNTa_NON07aJ2fU'
+
+import os
+import dj_database_url
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -82,11 +89,14 @@ WSGI_APPLICATION = 'jangoproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# During deployment, we'll set the DATABASE_URL environment variable to the PostgreSQL URL.
+# If it's not set, it defaults to the local SQLite database.
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}",
+        conn_max_age=600,
+        ssl_require=True if os.environ.get('DATABASE_URL') else False
+    )
 }
 
 
@@ -138,3 +148,7 @@ MEDIA_URL = '/media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ALLOWED_HOSTS = ['your-service-name.onrender.com']
 LOGIN_URL = '/login/'
+
+# Email configuration for Password Reset (outputs to console for development)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+

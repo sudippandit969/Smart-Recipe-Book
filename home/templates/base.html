@@ -1,146 +1,234 @@
-<!-- Place this inside your base.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Smart Recipe Book</title>
+  <title>{% block title %}Smart Recipe Book | Master Your Kitchen{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Join the Smart Recipe Book community to discover, share, and generate amazing culinary recipes using AI.{% endblock %}">
+  <meta name="keywords" content="recipes, cooking, AI recipe generator, food, culinary">
+  {% block head_extra %}{% endblock %}
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap & Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
   {% load static %}
   <style>
-    .NavBtn {
-      width: auto;
-      height: 45px;
-      padding: 0 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      background-color: transparent;
-      border: none;
-      cursor: pointer;
-      overflow: hidden;
-      border-radius: 7px;
-      transition: all 0.3s;
-      color: white;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-      font-size: 1rem;
-      z-index: 1;
+    :root {
+      --primary-color: #ff6b6b;
+      --primary-hover: #ff5252;
+      --bg-gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+      --glass-bg: rgba(255, 255, 255, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.4);
+      --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
     }
-
-    .BtnText {
-      z-index: 2;
-      position: relative;
-    }
-
-    .BtnBG {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background:rgb(71, 50, 43);
-      border-radius: 10px;
-      z-index: 0;
-      pointer-events: none;
-      transition: all 0.3s ease-in-out;
-    }
-
-    .NavBtn:hover .BtnBG {
-      transform: rotate(35deg);
-      transform-origin: bottom;
-    }
-
-    .NavBtn:hover {
-      background-color: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(4px);
-    }
-
-    a.nav-link {
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-gradient);
+      background-image: url('https://images.unsplash.com/photo-1495195129352-aeb325a55b65?q=80&w=2000&auto=format&fit=crop');
+      background-attachment: fixed;
+      background-size: cover;
+      background-position: center;
+      margin: 0;
       padding: 0;
+      min-height: 100vh;
+      color: #333;
     }
 
-    a.nav-link button {
+    /* Glassmorphism Navbar */
+    .glass-nav {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      position: fixed;
+      top: 0;
       width: 100%;
+      z-index: 1000;
+      padding: 10px 20px;
     }
 
-    nav {
-      z-index: 999;
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--primary-color) !important;
+      letter-spacing: 1px;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      color: #444 !important;
+      transition: color 0.3s, transform 0.3s;
+      margin: 0 5px;
+      padding: 8px 15px !important;
+      border-radius: 8px;
+    }
+
+    .nav-link:hover {
+      color: var(--primary-color) !important;
+      background: rgba(255,255,255,0.5);
+      transform: translateY(-2px);
+    }
+    
+    .nav-item.active .nav-link {
+        color: var(--primary-color) !important;
+        background: rgba(255,255,255,0.8);
+    }
+
+    /* Modern Buttons */
+    .btn-custom {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 20px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    .btn-custom:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+      color: white;
+    }
+
+    .content-wrapper {
+      padding-top: 100px;
+      padding-bottom: 50px;
+      min-height: calc(100vh - 100px);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Utility */
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--glass-shadow);
+        border-radius: 16px;
     }
   </style>
+  {% block extra_css %}{% endblock %}
 </head>
-<body
-  class="w-100"
-  style="
-    background-image: url('{% static 'images/pexels-ella-olsson-572949-1640773.jpg' %}');
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;"
->
+<body>
 
-<nav class="navbar navbar-expand-lg bg-body-tertiary card shadow-lg px-3 py-2" style="position: fixed; top: 0; width: 100%;">
-  <div class="container-fluid">
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
+<nav class="navbar navbar-expand-lg glass-nav">
+  <div class="container">
+    <a class="navbar-brand" href="/receipes/">
+      <i class="bi bi-egg-fried"></i> SmartRecipe
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0 mt-2 mt-lg-0">
-        <li class="nav-item me-2">
-          <a class="nav-link" href="/receipes/">
-            <button class="NavBtn"><span class="BtnBG"></span><span class="BtnText">Home</span></button>
-          </a>
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="/"><i class="bi bi-house-door"></i> Home</a>
         </li>
-        <li class="nav-item me-2">
-          <a class="nav-link" href="/contact/">
-            <button class="NavBtn"><span class="BtnBG"></span><span class="BtnText">Contact</span></button>
-          </a>
+        <li class="nav-item">
+          <a class="nav-link" href="/receipes/"><i class="bi bi-book"></i> Dashboard</a>
         </li>
-        <li class="nav-item dropdown me-2">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <button class="NavBtn"><span class="BtnBG"></span><span class="BtnText">More</span></button>
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="/about/">About Us</a></li>
-            <li><a class="dropdown-item" href="/social/">Social Media</a></li>
-          </ul>
+        <li class="nav-item">
+          <a class="nav-link" href="/community/"><i class="bi bi-globe"></i> Community</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/feedback/"><i class="bi bi-chat-heart"></i> Feedback</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/contact/"><i class="bi bi-envelope"></i> Contact</a>
         </li>
       </ul>
-
+      
       <ul class="navbar-nav">
+        {% if request.user.is_authenticated %}
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <button class="NavBtn"><span class="BtnBG"></span><span class="BtnText">Profile</span></button>
+          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+             <i class="bi bi-person-circle fs-5 me-2"></i> {{ request.user.username }}
           </a>
-          <ul class="dropdown-menu dropdown-menu-end">
-            {% if request.user.is_authenticated %}
-              <li><a class="dropdown-item" href="/logout/">Logout</a></li>
-            {% else %}
-              <li><a class="dropdown-item" href="/login/">Login</a></li>
-            {% endif %}
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+            <li><a class="dropdown-item py-2" href="/logout/"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
           </ul>
         </li>
+        {% else %}
+        <li class="nav-item me-2">
+            <a class="nav-link" href="/login/">Login</a>
+        </li>
+        <li class="nav-item">
+            <a class="btn btn-custom" href="/register/">Sign Up</a>
+        </li>
+        {% endif %}
       </ul>
     </div>
   </div>
 </nav>
 
-<!-- Content will render here -->
-<div style="padding-top: 80px;">
+<div class="content-wrapper">
+  {% if messages %}
+    <div class="container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 12px;">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+  {% endif %}
+  
   {% block start %}{% endblock %}
 </div>
 
+<!-- Modern Footer -->
+<footer class="text-center text-lg-start bg-dark text-light pt-5 pb-3 mt-auto w-100" style="background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);">
+  <div class="container text-center text-md-start">
+    <div class="row mt-3">
+      <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+        <h6 class="text-uppercase fw-bold mb-4">
+          <i class="bi bi-egg-fried me-3 text-warning"></i>Smart Recipe Book
+        </h6>
+        <p>
+          Organize your best recipes, discover new culinary ideas, and generate meals with AI. Built with ❤️ for food lovers.
+        </p>
+      </div>
+
+      <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+        <h6 class="text-uppercase fw-bold mb-4">Links</h6>
+        <p><a href="/" class="text-reset text-decoration-none">Home</a></p>
+        <p><a href="/community/" class="text-reset text-decoration-none">Community</a></p>
+        <p><a href="/feedback/" class="text-reset text-decoration-none">Feedback</a></p>
+        <p><a href="/contact/" class="text-reset text-decoration-none">Contact</a></p>
+      </div>
+
+      <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+        <h6 class="text-uppercase fw-bold mb-4">Developer Info</h6>
+        <p><i class="bi bi-person-circle me-3"></i>Sudip Pandit</p>
+        <p><i class="bi bi-envelope me-3"></i>sudippandit969@gmail.com</p>
+        <p>
+            <i class="bi bi-linkedin me-3"></i>
+            <a href="https://www.linkedin.com/in/sudip-pandit-100969261/" target="_blank" class="text-reset text-decoration-none">LinkedIn Profile</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+    © 2026 Copyright: <span class="fw-bold text-warning">Sudip Pandit</span>
+  </div>
+</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>

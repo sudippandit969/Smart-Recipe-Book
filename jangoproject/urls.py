@@ -21,6 +21,8 @@ from vege.views import *
 from django.conf.urls.static import static
 from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.contrib.auth import views as auth_views
+
 urlpatterns = [
     
     path('',home, name="home"),
@@ -35,6 +37,17 @@ urlpatterns = [
     path('login/',login_page, name="login_page"),
     path('register/',register_page, name="register_page"),
     path('logout/',logout_page, name="logout_page"),
+    path('community/', community_feed, name="community_feed"),
+    path('toggle_favorite/<id>/', toggle_favorite, name="toggle_favorite"),
+    path('ai_generate/', ai_generate_recipe, name="ai_generate_recipe"),
+    path('smart_suggest/<recipe_id>/', smart_suggest_products, name="smart_suggest_products"),
+    path('feedback/', feedback_page, name="feedback_page"),
+    
+    # Password Reset URLs
+    path('password_reset/', auth_views.PasswordResetView.as_view(template_name='password_reset_form.html'), name='password_reset'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html'), name='password_reset_complete'),
 ]
 
 if settings.DEBUG:

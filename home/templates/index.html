@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Smart Recipe Book | Discover & Generate{% endblock %}
+{% block meta_description %}The ultimate smart recipe book. Discover top community recipes, generate meals with AI, and organize your kitchen.{% endblock %}
+
+{% block extra_css %}
+<style>
+  .hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1495521821757-a1efb6729352?q=80&w=2000&auto=format&fit=crop') center/cover;
+    color: white;
+    padding: 100px 0;
+    text-align: center;
+    border-radius: 20px;
+    margin-top: -30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  .recipe-card {
+    transition: transform 0.3s;
+    border-radius: 16px;
+    overflow: hidden;
+    height: 100%;
+  }
+  .recipe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+  }
+  .feedback-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-left: 5px solid var(--primary-color);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    height: 100%;
+  }
+</style>
+{% endblock %}
+
+{% block start %}
+<div class="container">
+  
+  <!-- Hero Section -->
+  <div class="hero-section mb-5">
+    <h1 class="display-3 fw-bold mb-4">Master Your Kitchen</h1>
+    <p class="lead mb-4 mx-auto" style="max-width: 600px;">Organize your favorite recipes, discover what the community is cooking, and use our AI to instantly generate meals based on the ingredients you have.</p>
+    <a href="/register/" class="btn btn-custom btn-lg me-3 px-5">Join Now</a>
+    <a href="/community/" class="btn btn-outline-light btn-lg px-5">Explore Recipes</a>
+  </div>
+
+  <!-- Top Recipes Section -->
+  <div class="mb-5 mt-5 pt-4">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <h2 class="fw-bold" style="color: #2c3e50;"><i class="bi bi-star-fill text-warning"></i> Trending Recipes</h2>
+      <a href="/community/" class="text-decoration-none fw-bold" style="color: var(--primary-color);">View all <i class="bi bi-arrow-right"></i></a>
+    </div>
+    
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      {% for recipe in top_recipes %}
+      <div class="col">
+        <div class="card recipe-card border-0 shadow-sm">
+          {% if recipe.receipe_image %}
+            <img src="/media/{{ recipe.receipe_image }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ recipe.receipe_name }}">
+          {% else %}
+            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center text-white" style="height: 200px;">
+              <i class="bi bi-image fs-1"></i>
+            </div>
+          {% endif %}
+          <div class="card-body">
+            <h5 class="fw-bold text-truncate">{{ recipe.receipe_name }}</h5>
+            <p class="text-muted small mb-2">By @{{ recipe.user.username }} | <i class="bi bi-heart-fill text-danger"></i> {{ recipe.fav_count }} Favorites</p>
+            <p class="text-muted" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ recipe.receipe_description }}</p>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center text-muted">
+        <p>No public recipes yet. Be the first to share!</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Feedback Section -->
+  <div class="mb-5 pb-5 mt-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <h2 class="fw-bold" style="color: #2c3e50;"><i class="bi bi-chat-quote-fill text-primary"></i> Recent Feedback</h2>
+      <a href="/feedback/" class="btn btn-sm btn-outline-primary rounded-pill px-4">Leave Feedback</a>
+    </div>
+    
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+      {% for fb in recent_feedback %}
+      <div class="col">
+        <div class="feedback-card">
+          <div class="d-flex justify-content-between">
+            <h6 class="fw-bold mb-1"><i class="bi bi-person-circle"></i> @{{ fb.user.username }}</h6>
+            <div class="text-warning">
+              {% for i in "12345"|make_list %}
+                {% if forloop.counter <= fb.rating %}
+                  <i class="bi bi-star-fill"></i>
+                {% else %}
+                  <i class="bi bi-star"></i>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          {% if fb.recipe %}
+            <p class="small text-muted mb-2">Reviewed: <span class="fw-bold" style="color: var(--primary-color);">{{ fb.recipe.receipe_name }}</span></p>
+          {% else %}
+            <p class="small text-muted mb-2">General Platform Feedback</p>
+          {% endif %}
+          <p class="mb-0 text-dark">"{{ fb.comment }}"</p>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center text-muted">
+        <p>No feedback yet. Let us know what you think!</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

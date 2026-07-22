@@ -1,81 +1,89 @@
 {% extends "base.html" %}
-{% block start %}
 
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-  <form method="post" enctype="multipart/form-data" class="card p-4 custom-form shadow-lg">
-    {% csrf_token %}
-    
-    {% if messages %}
-      <div class="alert alert-primary" role="alert">
-        {% for message in messages %}
-          {{ message }}
-        {% endfor %}
-      </div>
-    {% endif %}
-
-    <h3 class="text-center mb-4 heading">LOGIN</h3>
-
-    <div class="form-group mb-3">
-      <label for="username">Username</label>
-      <input type="text" name="username" id="username" class="form-control custom-input" placeholder="Enter username" required>
-      <small class="form-text text-muted">Please enter your username</small>
-    </div>
-
-    <div class="form-group mb-3">
-      <label for="password">Password</label>
-      <input type="password" name="password" id="password" class="form-control custom-input" placeholder="Enter password" required>
-    </div>
-
-    <div class="form-check mb-3">
-      <input type="checkbox" class="form-check-input" id="rememberCheck">
-      <label class="form-check-label" for="rememberCheck">Check me out</label>
-    </div>
-
-    <p>Don't have an account? <a href="/register/">Register</a></p>
-
-    <button type="submit" class="btn custom-btn w-100">Submit</button>
-  </form>
-</div>
-
+{% block extra_css %}
 <style>
-.custom-form {
-  width: 420px;
-  background-color: #e4bb97;
-  border-radius: 10px;
-}
-
-.custom-input {
-  background-color: #EADDCA;
-  border: 1px solid #DAA06D;
-  color: #DAA06D;
-  text-align: center;
-  height: 3em;
-  border-radius: 10px;
-  transition: 0.3s ease-in-out;
-}
-
-.heading {
-  color: #DAA06D;
-  letter-spacing: 0.3em;
-  text-shadow: inset -1px -1px 1px #DAA06D;
-}
-
-.custom-btn {
-  background-color: #E5AA70;
-  color: white;
-  font-weight: bold;
-  letter-spacing: 0.1em;
-  border: none;
-  padding: 1em;
-  border-radius: 10px;
-  transition: all 0.3s ease-in-out;
-}
-
-.custom-btn:hover {
-  background-color: #cf935f;
-  transform: scale(1.03);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
+  body {
+    /* Cooking related image */
+    background-image: url('https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=2000&auto=format&fit=crop');
+  }
+  .auth-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+  .auth-left {
+    background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%); /* Warmer, food-like gradient */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem;
+  }
+  .auth-right {
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .form-control {
+    background: rgba(255,255,255,0.9);
+    border-radius: 10px;
+    padding: 12px 20px;
+    border: 1px solid #ddd;
+  }
+  .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
+  }
 </style>
+{% endblock %}
 
+{% block start %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 85vh;">
+  <div class="auth-card row w-100" style="max-width: 900px; min-height: 500px;">
+    
+    <div class="col-md-5 auth-left text-center d-none d-md-flex">
+      <i class="bi bi-egg-fried" style="font-size: 5rem; margin-bottom: 20px; color: #fff7e6;"></i>
+      <h2 class="fw-bold mb-3">Welcome Back, Chef!</h2>
+      <p class="lead">Log in to access your personal recipe book, discover community favorites, and generate new meals with AI.</p>
+    </div>
+    
+    <div class="col-md-7 auth-right">
+      <h3 class="fw-bold text-center mb-4" style="color: #333;">Enter the Kitchen</h3>
+      
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label class="form-label text-muted fw-bold small text-uppercase">Username</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white text-muted border-end-0"><i class="bi bi-person"></i></span>
+            <input type="text" name="username" class="form-control border-start-0 ps-0" required placeholder="Enter your chef name">
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <label class="form-label text-muted fw-bold small text-uppercase d-flex justify-content-between w-100">
+            <span>Password</span>
+            <a href="{% url 'password_reset' %}" class="text-decoration-none text-lowercase" style="color: var(--primary-color);">Forgot password?</a>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text bg-white text-muted border-end-0"><i class="bi bi-lock"></i></span>
+            <input type="password" name="password" class="form-control border-start-0 ps-0" required placeholder="Enter your secret recipe (password)">
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-custom w-100 py-2 fs-5 mb-3">Start Cooking!</button>
+        
+        <div class="text-center mt-3">
+          <p class="text-muted">Don't have an account? <a href="/register/" class="text-decoration-none fw-bold" style="color: var(--primary-color);">Sign Up</a></p>
+        </div>
+      </form>
+    </div>
+    
+  </div>
+</div>
 {% endblock %}
