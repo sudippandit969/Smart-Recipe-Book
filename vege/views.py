@@ -135,7 +135,7 @@ def ai_generate_recipe(request):
         
         try:
             genai.configure(api_key=settings.GEMINI_API_KEY)
-            model = genai.GenerativeModel('gemini-flash-latest')
+            model = genai.GenerativeModel('gemini-1.5-flash')
             
             system_prompt = f"""
             You are a professional chef. Given the following user input/ingredients: "{prompt}",
@@ -183,7 +183,7 @@ def smart_suggest_products(request, recipe_id):
         recipe = Receipe.objects.get(id=recipe_id)
         
         genai.configure(api_key=settings.GEMINI_API_KEY)
-        model = genai.GenerativeModel('gemini-flash-latest')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         prompt = f"""
         Analyze this recipe:
