@@ -149,6 +149,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ALLOWED_HOSTS = ['your-service-name.onrender.com']
 LOGIN_URL = '/login/'
 
-# Email configuration for Password Reset (outputs to console for development)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
+# Email configuration (Configured for Resend SMTP)
+# In local development, you might still want to use the console backend.
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.resend.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = 'resend'
+    # Use your Resend API Key as the password
+    EMAIL_HOST_PASSWORD = os.environ.get('RESEND_API_KEY')
+    # Default from email (Must be a domain you have verified in Resend)
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'onboarding@resend.dev')
