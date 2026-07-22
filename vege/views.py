@@ -306,21 +306,3 @@ def feedback_page(request):
         
     recipes = Receipe.objects.filter(is_public=True)
     return render(request, 'feedback.html', {'recipes': recipes})
-        recipe = None
-        if recipe_id:
-            try:
-                recipe = Receipe.objects.get(id=recipe_id)
-            except Receipe.DoesNotExist:
-                pass
-                
-        Feedback.objects.create(
-            user=request.user,
-            recipe=recipe,
-            rating=int(rating),
-            comment=comment
-        )
-        messages.success(request, "Thank you for your feedback!")
-        return redirect('/')
-        
-    recipes = Receipe.objects.filter(is_public=True)
-    return render(request, 'feedback.html', {'recipes': recipes})
